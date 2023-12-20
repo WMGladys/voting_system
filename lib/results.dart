@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:voting_system/votingPage.dart';
+import 'package:voting_system/globals.dart';
 
 class Results extends StatelessWidget {
   final List<Candidate> candidates;
@@ -21,7 +22,7 @@ class Results extends StatelessWidget {
           itemBuilder: (context, index) {
             return ListTile(
               title: Text(candidates[index].name, style: TextStyle(color: Colors.white)),
-              subtitle: Text('Votes: ${candidates[index].votes}', style: TextStyle(color: Colors.blueAccent)),
+              subtitle: Text('Votes: ${GlobalStorage().candidateVotes[candidates[index].name]}', style: TextStyle(color: Colors.blueAccent)),
             );
           },
         ),

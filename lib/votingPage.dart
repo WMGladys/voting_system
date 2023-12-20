@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:http/http.dart' show Client;
 import 'package:voting_system/results.dart';
+import 'package:voting_system/globals.dart';
 
 class VotingApp extends StatelessWidget {
   @override
@@ -13,6 +14,7 @@ class VotingApp extends StatelessWidget {
 }
 
 class VotingPage extends StatefulWidget {
+
   @override
   _VotingPageState createState() => _VotingPageState();
 }
@@ -47,14 +49,22 @@ class _VotingPageState extends State<VotingPage> {
 
   void vote() {
     if (selectedCandidate != null && isButtonEnabled) {
-      selectedCandidate!.votes++;
-      candidates.sort((a, b) => b.votes.compareTo(a.votes));
+      // Check if the candidate's name exists as a key in the map
+      if (GlobalStorage().candidateVotes.containsKey(selectedCandidate!.name)) {
+        GlobalStorage().candidateVotes[selectedCandidate!.name] = GlobalStorage().candidateVotes[selectedCandidate!.name]! + 1;
+      } else {
+        GlobalStorage().candidateVotes[selectedCandidate!.name] = 1;
+      }
+
+      candidates.sort((a, b) => GlobalStorage().candidateVotes[b.name]!.compareTo(GlobalStorage().candidateVotes[a.name]!));
+
       setState(() {
         selectedCandidate = null;
-        isButtonEnabled = false; // Disable the button after voting
+        isButtonEnabled = false;
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -84,22 +94,25 @@ class _VotingPageState extends State<VotingPage> {
             Center(child: Text('4. The results will be displayed after voting.', style: TextStyle(color: Colors.white))),
             SizedBox(height: 16),
             Text('Candidates:', style: TextStyle(color: Colors.blueAccent)),
-            Expanded(
-              child: ListView.builder(
-                itemCount: candidates.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(candidates[index].name, style: TextStyle(color: Colors.white)),
-                    onTap: () {
-                      setState(() {
-                        selectedCandidate = candidates[index];
-                      });
-                    },
-                    tileColor: selectedCandidate == candidates[index]
-                        ? Colors.blue.withOpacity(0.3)
-                        : null,
-                  );
-                },
+            Container(
+              height: 150.0,
+              child: Expanded(
+                child: ListView.builder(
+                  itemCount: candidates.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(candidates[index].name, style: TextStyle(color: Colors.white)),
+                      onTap: () {
+                        setState(() {
+                          selectedCandidate = candidates[index];
+                        });
+                      },
+                      tileColor: selectedCandidate == candidates[index]
+                          ? Colors.blue.withOpacity(0.3)
+                          : null,
+                    );
+                  },
+                ),
               ),
             ),
             SizedBox(height: 25),
@@ -119,17 +132,17 @@ class _VotingPageState extends State<VotingPage> {
             SizedBox(height: 25),
 
             Text('Results:', style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold, fontSize: 18)),
-            Expanded(
-              child: ListView.builder(
-                itemCount: candidates.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(candidates[index].name, style: TextStyle(color: Colors.white)),
-                    subtitle: Text('Votes: ${candidates[index].votes}', style: TextStyle(color: Colors.blueAccent)),
-                  );
-                },
-              ),
-            ),
+            // Expanded(
+            //   child: ListView.builder(
+            //     itemCount: candidates.length,
+            //     itemBuilder: (context, index) {
+            //       return ListTile(
+            //         title: Text(candidates[index].name, style: TextStyle(color: Colors.white)),
+            //         subtitle: Text('Votes: ${candidates[index].votes}', style: TextStyle(color: Colors.blueAccent)),
+            //       );
+            //     },
+            //   ),
+            // ),
             SizedBox(height:20),
             ElevatedButton(
               style: ButtonStyle(
